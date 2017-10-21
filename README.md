@@ -1,4 +1,4 @@
-# var.cr
+# var.cr [![Build Status](https://travis-ci.org/maiha/var.cr.svg?branch=master)](https://travis-ci.org/maiha/var.cr)
 
 `Object.var` macro for [Crystal](http://crystal-lang.org/).
 
