@@ -11,7 +11,19 @@ class Object
   # __var_with_type__ String, foo : String? = nil
   # ```
   macro var(name)
-    __var_with_type__({{name.type.stringify.gsub(/ \| ::Nil/, "").id}}, {{name}})
+    {% if name.is_a?(TypeDeclaration) %}
+      __var_with_type__({{name.type.stringify.gsub(/ \| ::Nil/, "").id}}, {{name.var}}, {{name.value.stringify.gsub(/\A\Z/, "nil").id}}, {{name.type}})
+    {% elsif name.is_a?(Assign) %}
+      {% if name.value.class_name =~ /NumberLiteral$/ %}
+        __var_with_assign_type__(Int32, {{name.target}}, {{name.value}})
+      {% elsif name.value.class_name =~ /(Array|Hash)Literal$/ %}
+        __var_with_assign__({{name}})
+      {% elsif name.value.class_name =~ /Literal$/ %}
+        __var_with_assign_type__({{name.value.class_name.gsub(/Literal$/, "").id}}, {{name.target}}, {{name.value}})
+      {% else %}
+        __var_with_assign__({{name}})
+      {% end %}
+    {% end %}
   end
 
   # ```
@@ -20,31 +32,46 @@ class Object
   #   def type : ASTNode
   #   def value : ASTNode | Nop
   # ```
-  private macro __var_with_type__(type, name)
-    @{{name.var.id}} : ::Var({{type}}) = ::Var({{type}}).new(name: {{name.var.stringify}}, born: {{__FILE__}} + ":{{__LINE__}}", value: {{name.value.stringify.gsub(/\A\Z/, "nil").id}})
+  private macro __var_with_type__(type, name, value, original_type)
+    @{{name.id}} : ::Var({{type}}) = ::Var({{type}}).new(name: {{name.stringify}}, born: {{__FILE__}} + ":{{__LINE__}}", value: {{value}})
 
-    {% if name.type.stringify =~ / \| ::Nil/ %}
-    def {{name.var.id}} : {{name.type}}
-      @{{name.var.id}}.get?
+    {% if original_type.stringify =~ / \| ::Nil/ %}
+    def {{name.id}} : {{original_type}}
+      @{{name.id}}.get?
     end
     {% else %}
-    def {{name.var.id}} : {{type}}
-      @{{name.var.id}}.get
+    def {{name.id}} : {{type}}
+      @{{name.id}}.get
     end
     {% end %}
 
-    {% if name.type.stringify == "Bool" %}
-    def {{name.var.id}}? : Bool
-      @{{name.var.id}}.get
+    {% if type.stringify == "Bool" %}
+    def {{name.id}}? : Bool
+      @{{name.id}}.get
     end
     {% else %}
-    def {{name.var.id}}? : {{type}}?
-      @{{name.var.id}}.get?
+    def {{name.id}}? : {{type}}?
+      @{{name.id}}.get?
     end
     {% end %}
 
-    def {{name.var.id}}=(v : {{type}}) : {{type}}
-      @{{name.var.id}}.value = v
+    def {{name.id}}=(v : {{type}}) : {{type}}
+      @{{name.id}}.value = v
+    end
+  end
+
+  # ```
+  # class Assign < ASTNode
+  #   def target : ASTNode
+  #   def value : ASTNode
+  # ```
+  private macro __var_with_assign_type__(type, name, value)
+    __var_with_type__({{type}}, {{name}}, {{value}}, {{type}})
+  end
+
+  private macro __var_with_assign__(name)
+    def {{name.target.id}}
+      {{name.value}}
     end
   end
 end

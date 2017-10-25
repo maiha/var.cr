@@ -9,7 +9,16 @@
 ```crystal
 class MyClass
   var foo : String
+  var debug = false
 end
+
+my = MyClass.new
+my.foo # raises Var::NotReady
+
+my.foo = "ok"
+my.foo # => "ok"
+
+my.debug? # => false
 ```
 
 ## Installation
