@@ -16,7 +16,7 @@ describe "var foo : Bool = false  # TypeDeclaration" do
     end
   end
 
-  context "(without initialization)" do
+  context "(default)" do
     obj = MyClass.new
 
     describe "foo?" do
