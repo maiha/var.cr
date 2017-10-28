@@ -2,7 +2,7 @@
 
 `Object.var` macro for [Crystal](http://crystal-lang.org/).
 
-- crystal: 0.23.1
+- crystal: 0.24.0
 
 ## Usage
 

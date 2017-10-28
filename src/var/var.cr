@@ -10,8 +10,6 @@ class Var(T)
     Bound
   end
 
-  alias Builder = Proc(T)
-
   ######################################################################
   ### Properties
 
@@ -19,12 +17,13 @@ class Var(T)
   getter name
   getter born
 
-  property builder
+  property builder : Proc(T)
 
   ######################################################################
   ### Instance creation
 
-  def initialize(@state : State, @name : String, @born : String, @value : T? = nil, @builder : Builder = ->() { not_found })
+  def initialize(@state : State, @name : String, @born : String, @value : T? = nil, builder : Proc(T)? = nil)
+    @builder = builder || Proc(T).new{ not_found }
   end
 
   def self.new(name : String, born : String)
@@ -66,7 +65,7 @@ class Var(T)
     @value
   end
 
-  protected def not_found
+  protected def not_found : T
     raise NotReady.new(self)
   end
 end
