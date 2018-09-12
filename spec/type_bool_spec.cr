@@ -2,20 +2,9 @@ require "./spec_helper"
 
 private class MyClass
   var foo : Bool = false
-
-  def read_ivar_foo
-    @foo
-  end
 end
 
 describe "var foo : Bool = false  # TypeDeclaration" do
-  describe "@foo" do
-    it "is a Var(String)" do
-      obj = MyClass.new
-      obj.read_ivar_foo.should be_a(Var(Bool))
-    end
-  end
-
   context "(default)" do
     obj = MyClass.new
 

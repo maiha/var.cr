@@ -1,24 +1,33 @@
 # var.cr [![Build Status](https://travis-ci.org/maiha/var.cr.svg?branch=master)](https://travis-ci.org/maiha/var.cr)
 
-`Object.var` macro for [Crystal](http://crystal-lang.org/).
+`var` provides a macro that gives a lazy evaluation to the `property` variable.
+Users are freed from ugly `not_nil!` and tired `not initialized` constraints
+and can write simple code.
 
-- crystal: 0.24.0
+- crystal: 0.26.1
 
 ## Usage
 
 ```crystal
-class MyClass
-  var foo : String
-  var debug = false
+class Sample
+  var foo = true
+  var bar : Int32 = build_bar
+  var baz : String
+
+  private def build_bar
+    1
+  end
 end
 
-my = MyClass.new
-my.foo # raises Var::NotReady
-
-my.foo = "ok"
-my.foo # => "ok"
-
-my.debug? # => false
+obj = Sample.new
+obj.foo?      # => true
+obj.foo       # => true
+obj.bar?      # => 1
+obj.bar       # => 1
+obj.baz?      # => nil
+obj.baz       # raises "var `baz` is not set yet." (Var::NotReady)
+obj.baz = "a"
+obj.baz       # => "a"
 ```
 
 ## Installation

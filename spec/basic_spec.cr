@@ -13,8 +13,8 @@ end
 describe "Var" do
   context "(without default)" do
     it "should raise" do
-      expect_raises(Var::NotReady) { App1.new.s }
-      expect_raises(Var::NotReady) { App1.new.b }
+      expect_raises(Var::NotReady, /var `s` is not set yet.*basic_spec\.cr:5/) { App1.new.s }
+      expect_raises(Var::NotReady, /var `b` is not set yet.*basic_spec\.cr:9/) { App1.new.b }
     end
   end
 

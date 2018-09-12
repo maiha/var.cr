@@ -74,7 +74,10 @@ describe "var qux = [\"a\"]  # Assign(ArrayLiteral)" do
   end
   
   describe "qux = [\"b\"]" do
-    pending "ArrayLiteral can't detect its generic class" do
+    pending "(It seems ArrayLiteral, but we can't know the generics type in macro)" do
+      obj.baz = ["b"]
+      obj.baz.should eq(["b"])
+      obj.baz?.should eq(["b"])
     end
   end
 end

@@ -10,19 +10,21 @@ class Object
   # var foo : String? = nil
   # __var_with_type__ String, foo : String? = nil
   # ```
-  macro var(name)
+  macro var(name)    
     {% if name.is_a?(TypeDeclaration) %}
-      __var_with_type__({{name.type.stringify.gsub(/ \| ::Nil/, "").id}}, {{name.var}}, {{name.value.stringify.gsub(/\A\Z/, "nil").id}}, {{name.type}})
+      __var_with_type__({{name.filename}} + ":{{name.line_number}}", {{name.type.stringify.gsub(/ \| ::Nil/, "").id}}, {{name.var}}, {{name.value.stringify}}, {{name.type}})
     {% elsif name.is_a?(Assign) %}
       {% if name.value.class_name =~ /NumberLiteral$/ %}
-        __var_with_assign_type__(Int32, {{name.target}}, {{name.value}})
+        __var_with_assign_type__({{name.filename}} + ":{{name.line_number}}", Int32, {{name.target}}, {{name.value}})
       {% elsif name.value.class_name =~ /(Array|Hash)Literal$/ %}
-        __var_with_assign__({{name}})
+        __var_with_assign_unknown_type__({{name}})
       {% elsif name.value.class_name =~ /Literal$/ %}
-        __var_with_assign_type__({{name.value.class_name.gsub(/Literal$/, "").id}}, {{name.target}}, {{name.value}})
+        __var_with_assign_type__({{name.filename}} + ":{{name.line_number}}", {{name.value.class_name.gsub(/Literal$/, "").id}}, {{name.target}}, {{name.value}})
       {% else %}
-        __var_with_assign__({{name}})
+        __var_with_assign_unknown_type__({{name}})
       {% end %}
+    {% else %}
+      {% abort "var.cr doesn't support " + name.class_name %}
     {% end %}
   end
 
@@ -32,31 +34,57 @@ class Object
   #   def type : ASTNode
   #   def value : ASTNode | Nop
   # ```
-  private macro __var_with_type__(type, name, value, original_type)
-    @{{name.id}} : ::Var({{type}}) = ::Var({{type}}).new(name: {{name.stringify}}, born: {{__FILE__}} + ":{{__LINE__}}", value: {{value}})
+  private macro __var_with_type__(clue, type, name, value, original_type)
+    # [crystal]              # {{value}}
+    # var foo : String       # ""
+    # var var : String = nil # "nil"
+    # var baz : String = ""  # "\"\""
+    @{{name.id}} : {{type}}? = nil
 
+    private def __build_{{name.id}}
+      {% if value == "" %}
+        raise Var.not_ready({{name.stringify}}, {{clue}})
+      {% elsif original_type.stringify =~ / \| ::Nil/ %}
+        {{value.id}}
+      {% else %}
+        {{value.id}}
+      {% end %}
+    end
+                             
     {% if original_type.stringify =~ / \| ::Nil/ %}
     def {{name.id}} : {{original_type}}
-      @{{name.id}}.get?
+      @{{name.id}} ||= __build_{{name.id}}
     end
     {% else %}
     def {{name.id}} : {{type}}
-      @{{name.id}}.get
+      # don't use "||=" for Bool cases
+      if @{{name.id}} == nil
+        @{{name.id}} = __build_{{name.id}}
+      end
+      {% if type.stringify == "Bool" %}
+        !! @{{name.id}}
+      {% else %}
+        @{{name.id}} || raise Var.not_ready({{name.stringify}}, {{clue}})
+      {% end %}
     end
     {% end %}
 
     {% if type.stringify == "Bool" %}
     def {{name.id}}? : Bool
-      @{{name.id}}.get
+      {{name.id}}
     end
     {% else %}
     def {{name.id}}? : {{type}}?
-      @{{name.id}}.get?
+      {% if value == "" %}
+        return @{{name.id}}
+      {% else %}
+        @{{name.id}} ||= __build_{{name.id}}
+      {% end %}
     end
     {% end %}
 
     def {{name.id}}=(v : {{type}}) : {{type}}
-      @{{name.id}}.value = v
+      @{{name.id}} = v
     end
   end
 
@@ -65,11 +93,11 @@ class Object
   #   def target : ASTNode
   #   def value : ASTNode
   # ```
-  private macro __var_with_assign_type__(type, name, value)
-    __var_with_type__({{type}}, {{name}}, {{value}}, {{type}})
+  private macro __var_with_assign_type__(clue, type, name, value)
+    __var_with_type__({{clue}}, {{type}}, {{name}}, {{value.stringify}}, {{type}})
   end
 
-  private macro __var_with_assign__(name)
+  private macro __var_with_assign_unknown_type__(name)
     def {{name.target.id}}
       {{name.value}}
     end
