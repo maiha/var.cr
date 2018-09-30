@@ -41,7 +41,7 @@ Add this to your application's `shard.yml`:
 dependencies:
   var:
     github: maiha/var.cr
-    version: 1.0.0
+    version: 1.1.0
 ```
 
 Then require it in your app.
