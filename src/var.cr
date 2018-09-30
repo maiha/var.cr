@@ -1,4 +1,11 @@
-require "./var/*"
+module Var
+  class NotReady < Exception
+  end
+
+  def self.not_ready(name, born)
+    raise NotReady.new("var `#{name}` is not set yet. (Defined in '#{born}')")
+  end
+end
 
 class Object
   # `var(TypeDeclaration)`
@@ -43,7 +50,7 @@ class Object
 
     private def __build_{{name.id}}
       {% if value == "" %}
-        raise Var.not_ready({{name.stringify}}, {{clue}})
+        Var.not_ready({{name.stringify}}, {{clue}})
       {% elsif original_type.stringify =~ / \| ::Nil/ %}
         {{value.id}}
       {% else %}
@@ -64,7 +71,7 @@ class Object
       {% if type.stringify == "Bool" %}
         !! @{{name.id}}
       {% else %}
-        @{{name.id}} || raise Var.not_ready({{name.stringify}}, {{clue}})
+        @{{name.id}} || Var.not_ready({{name.stringify}}, {{clue}})
       {% end %}
     end
     {% end %}
@@ -85,6 +92,10 @@ class Object
 
     def {{name.id}}=(v : {{type}}) : {{type}}
       @{{name.id}} = v
+    end
+
+    # `nil` assignments are always ignored
+    def {{name.id}}=(v : Nil)
     end
   end
 

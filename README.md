@@ -28,6 +28,9 @@ obj.baz?      # => nil
 obj.baz       # raises "var `baz` is not set yet." (Var::NotReady)
 obj.baz = "a"
 obj.baz       # => "a"
+
+obj.baz = nil # `nil` assignments are always ignored
+obj.baz       # => "a"
 ```
 
 ## Installation
