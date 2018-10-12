@@ -9,10 +9,13 @@ and can write simple code.
 ## Usage
 
 ```crystal
+require "var"
+
 class Sample
   var foo = true
   var bar : Int32 = build_bar
   var baz : String
+  var counts = Hash(String, Int32).new
 
   private def build_bar
     1
@@ -31,6 +34,9 @@ obj.baz       # => "a"
 
 obj.baz = nil # `nil` assignments are always ignored
 obj.baz       # => "a"
+
+obj.counts["a"] = 1
+obj.counts    # => {"a" => 1}
 ```
 
 ## Installation
@@ -42,11 +48,6 @@ dependencies:
   var:
     github: maiha/var.cr
     version: 1.1.0
-```
-
-Then require it in your app.
-```crystal
-require "var"
 ```
 
 ## Development

@@ -2,20 +2,30 @@ require "./spec_helper"
 
 private class Foo
   def initialize(parent)
-    parent.cnt += 1
+    parent.foo_created_cnt += 1
   end
 end
 
 private class MyClass
+  var counts = Hash(String, Int32).new
+
   var foo = Foo.new(self)
-  var cnt = 0
+  var foo_created_cnt = 0
 end
 
 describe "var foo = Foo.new" do
-  it "evaluates lazily" do
+  it "works with Hash.new" do
     obj = MyClass.new
-    obj.cnt.should eq(0)
+    obj.counts["a"] = 1
+    obj.counts.should eq({"a" => 1})
+  end
+
+  it "builds an instance lazily and exactly once" do
+    obj = MyClass.new
+    obj.foo_created_cnt.should eq(0)
     obj.foo.should be_a(Foo)
-    obj.cnt.should eq(1)
+    obj.foo_created_cnt.should eq(1)
+    obj.foo
+    obj.foo_created_cnt.should eq(1)
   end
 end

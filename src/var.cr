@@ -27,6 +27,12 @@ class Object
         __var_with_assign_unknown_type__({{name}})
       {% elsif name.value.class_name =~ /Literal$/ %}
         __var_with_assign_type__({{name.filename}} + ":{{name.line_number}}", {{name.value.class_name.gsub(/Literal$/, "").id}}, {{name.target}}, {{name.value}})
+      {% elsif name.value.class_name == "Call" && name.value.name.stringify == "new" %}
+        # var foo = Foo.new(self)
+        # [name.value.id  ] Foo.new(self)
+        # [name.value.name] new
+        # [name.value.id.stringify.gsub(/\.new\b.*$/, "")] "Foo"
+        __var_with_assign_type__({{name.filename}} + ":{{name.line_number}}", {{name.value.id.stringify.gsub(/\.new\b.*$/, "").id}}, {{name.target}}, {{name.value}})
       {% else %}
         __var_with_assign_unknown_type__({{name}})
       {% end %}
