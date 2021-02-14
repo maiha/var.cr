@@ -73,11 +73,11 @@ describe "var qux = [\"a\"]  # Assign(ArrayLiteral)" do
     end
   end
   
-  describe "qux = [\"b\"]" do
-    pending "(It seems ArrayLiteral, but we can't know the generics type in macro)" do
-      obj.baz = ["b"]
-      obj.baz.should eq(["b"])
-      obj.baz?.should eq(["b"])
-    end
-  end
+#  describe "qux = [\"b\"]" do
+#    it "(It seems ArrayLiteral, but we can't know the generics type in macro)" do
+#      obj.baz = ["b"]
+#      obj.baz.should eq(["b"])
+#      obj.baz?.should eq(["b"])
+#    end
+#  end
 end

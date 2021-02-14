@@ -4,7 +4,7 @@
 Users are freed from ugly `not_nil!` and tired `not initialized` constraints
 and can write simple code.
 
-- crystal: 0.26.1
+- [tested versions](./ci)
 
 ## Usage
 
@@ -53,7 +53,7 @@ dependencies:
 ## Development
 
 ```shell
-make test
+make ci
 ```
 
 ## Contributing
