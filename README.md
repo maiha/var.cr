@@ -1,4 +1,4 @@
-# var.cr [![Build Status](https://travis-ci.org/maiha/var.cr.svg?branch=master)](https://travis-ci.org/maiha/var.cr)
+# var.cr
 
 `var` provides a macro that gives a lazy evaluation to the `property` variable.
 Users are freed from ugly `not_nil!` and tired `not initialized` constraints
@@ -50,10 +50,13 @@ dependencies:
     version: 1.3.0
 ```
 
-## Development
+## CI
 
-```shell
-make ci
+Run `make test/x.x.x` to test crystal-x.x.x. And to test all the versions, run `ci`.
+
+```console
+$ make test/1.1.1
+$ ./ci
 ```
 
 ## Contributing

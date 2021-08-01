@@ -6,3 +6,5 @@ make test/0.27.2
 make test/0.33.0-alpine
 make test/0.35.1-alpine
 make test/0.36.1-alpine
+make test/1.0.0-alpine
+make test/1.1.1-alpine
